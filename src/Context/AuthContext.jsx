@@ -54,18 +54,57 @@ const AuthContextProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('authorization_token');
         if (token) {
-            setIsAuthenticatedState(true);
+            // Hacer una solicitud al backend para verificar si el token es válido
+            fetch(`${import.meta.env.VITE_URL_API}/verify-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isValid) {
+                    setIsAuthenticatedState(true); // El token es válido
+                } else {
+                    setIsAuthenticatedState(false); // Token no válido
+                    localStorage.removeItem('authorization_token'); // Limpiar el token inválido
+                }
+            })
+            .catch(() => {
+                setIsAuthenticatedState(false);
+                localStorage.removeItem('authorization_token');
+            });
         }
-    }, []);
+    }, []);// Esto verifica el token antes de que el estado de autenticación se marque como true.
     const logout = () => {
         localStorage.removeItem('authorization_token');
         setIsAuthenticatedState(false);
     };
-    const login = (authorization_token) => {
-        console.log("Token al iniciar sesión:", authorization_token);
-        localStorage.setItem("authorization_token", authorization_token);
-        setIsAuthenticatedState(true);
+    const login = async (username, password) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_URL_API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (response.ok && data.token) {
+                // Guarda el token en el localStorage
+                localStorage.setItem("authorization_token", data.token);
+                setIsAuthenticatedState(true); // Marca al usuario como autenticado
+            } else {
+                console.error('Credenciales incorrectas');
+            }
+        } catch (error) {
+            console.error('Error al hacer login', error);
+        }
     };
+    // const login = (authorization_token) => {
+    //     console.log("Token al iniciar sesión:", authorization_token);
+    //     localStorage.setItem("authorization_token", authorization_token);
+    //     setIsAuthenticatedState(true);
+    // };
     const createWorkspace = (authorization_token) => {
         // Validar token antes de guardar
         if (!authorization_token) {
