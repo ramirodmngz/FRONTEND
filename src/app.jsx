@@ -22,8 +22,11 @@ function App() {
           <Route path="/home" element ={<HomeScreen />} />
 
           <Route path="/" element={<HomeScreen/>}/>
+          
+          <Route element={<ProtectedRoute/>} >
+          <Route path='/create-workspace' element={<CreateWorkspaceScreen/>}/>
+        </Route>
 
-          <Route path="/create-workspace" element={<CreateWorkspaceScreen/>}/>
           <Route path="/create-channel" element={<CreateChannelScreen/>}/>
 
 

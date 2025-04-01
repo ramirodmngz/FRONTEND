@@ -22,7 +22,7 @@ const RegisterScreen = () => {
     const handleSubmitForm = async (e)=>{
             e.preventDefault()
             await postRequest(formState)
-            console.log(formState)
+            
         
         //enviar el formulario osea el estado al backend
         //consulta HTTP
@@ -39,12 +39,9 @@ const RegisterScreen = () => {
 
             <div className='main-container'>
                 <div className='header-container'>
-                    <div className='logo-container'>
-                        <h1><SiSlack /></h1>
-                        <h1>slack</h1>
-                    </div>
+                    
                     <div className='header-text'>
-                        <h1>Registar en slack</h1>
+                        <h1>Registar en <SiSlack />slack</h1>
                         <p>Te sugerimos que uses la direccion de correo electronico que usas en el trabajo</p>
                     </div>
                 </div>            

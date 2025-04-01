@@ -12,42 +12,52 @@ export const useApiRequest = (url) => {
 
 
     const [responseApiState, setResponseApiState] = useState(initialResponseApiState)
+    const token = localStorage.getItem("authorization_token") || sessionStorage.getItem("authorization_token")
 
 
 
     const postRequest = async (body) => {
         try {
-            // Obtener el token del localStorage
-            const token = localStorage.getItem("authorization_token");
-            if (!token) {
-                console.error("Token no encontrado");
-                return;
-            }
-            // Hacer la solicitud con el token
-            const response = await fetch('http://localhost:3000/api/workspaces', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`, // Pasar el token en la cabecera
-                },
-                body: JSON.stringify(body),
-            });
-            const data = await response.json();
-            console.log(data);
+            setResponseApiState((prevState) => {
+                return {
+                    ...prevState, loading: true
+                } 
+            })
+            const response = await fetch(
+                url,
+                {
+                    method: 'POST',
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                }
+            )
+            const data = await response.json()
+
             if (data.ok) {
-                setResponseApiState({ ...initialResponseApiState, data: data });
-                Navigate("/home"); // Redirigir al home después de crear el workspace
-            } else {
-                throw new Error(data.message); // Manejo del error del servidor
+                setResponseApiState((prevState) =>{
+                    return {...prevState, data: data}
+                })
             }
-        } catch (error) {
-            setResponseApiState((prevState) => {
-                return { ...prevState, error: error.message || "no se pudo enviar la informacion al servidor" };
-            });
-        } finally {
-            setResponseApiState((prevState) => {
-                return { ...prevState, loading: false };
-            });
+            else {
+                throw new ServerError(data.message, data.status)
+            }
+        }
+        catch(error){
+            setResponseApiState((prevState) =>{
+                //if(error instanceof ServerError){} | Otra forma de hacerlo
+                if(error.status){//Verificamos si es un error de servidor
+                    return {...prevState, error: error.message}
+                }
+                return {...prevState, error: 'No se pudo enviar la informacion al servidor'}
+            })
+        }
+        finally{
+            setResponseApiState((prevState)=>{
+                return {...prevState, loading: false}
+            })
         }
     };
 

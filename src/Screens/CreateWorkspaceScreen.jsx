@@ -15,47 +15,16 @@ const CreateWorkspaceScreen = () => {
     const { formState, handleChangeInput } = useForm(formInitialState)
     const { responseApiState, postRequest } = useApiRequest(ENVIROMENT.URL_API + "/api/workspaces")
 
-
-    // useEffect(() => {
-    //     if (responseApiState.data) {
-    //         // const workspaceId = responseApiState.data.data.id;
-    //         // sessionStorage.setItem("workspace_id", workspaceId); // Guardar ID
-    //         createWorkspace(responseApiState.data.data.authorization_token);
-    //         localStorage.setItem("authorization_token", responseApiState.data.data.authorization_token);
-    //         Navigate("/home");
-    //     }
-    // }, [responseApiState, createWorkspace, Navigate]);
-
-    // useEffect(() => {
-    //     if (responseApiState.data) {
-    //         // Acceder al token de manera segura
-    //         const token = responseApiState.data?.data?.authorization_token;
-    //         // Validar que el token exista
-    //         if (token) {
-    //             console.log("Token válido recibido:", token);
-    //             createWorkspace(token); // Enviar token al contexto
-    //             Navigate("/home"); // Redirigir al home
-    //         } else {
-    //             console.error("Token es undefined o no existe");
-    //         }
-    //     }
-    // }, [responseApiState, createWorkspace, Navigate]);
-
     useEffect(() => {
         if (responseApiState.data) {
-            const token = responseApiState.data.authorization_token;
-            if (token) {
-                console.log("Token válido recibido:", token);
-                localStorage.setItem("authorization_token", token); // Guardar el token en localStorage
-                createWorkspace(token); // Guardar el token en el contexto
-                Navigate("/home"); // Redirigir a la página de inicio
-            } else {
-                console.error("Token es undefined o no existe");
-            }
-        }
-    }, [responseApiState, createWorkspace, Navigate]);
+            // console.log("estado de respuesta de la api", responseApiState)
+            createWorkspace(responseApiState.data.data.authorization_token)
+            Navigate("/home")
 
-    
+        }
+    },
+        //cada vez q cambie mi estado de respuesta ejecutare el efecto 
+        [responseApiState, createWorkspace, Navigate])
 
     const handleSubmitForm = async (e) => {
         e.preventDefault()
@@ -73,10 +42,15 @@ const CreateWorkspaceScreen = () => {
     }
     return (
         <>
-            <div className='name'>
-                <h1>crear un workspace</h1>
+            <div className='main-container'>
+                <div className='header-container'>
+                    <div className='header-text'>
+                    <h1>Crear un espacio de trabajo</h1>
+                    </div>
+                </div>
+                
                 <form onSubmit={handleSubmitForm} >
-                    <div>
+                    <div className="form-email">
                         <label htmlFor="name">name</label>
                         <input
                             type="text"
@@ -92,9 +66,9 @@ const CreateWorkspaceScreen = () => {
                     {
                         responseApiState.loading
                             ? <span>Cargando</span>
-                            : <button className="form-buttom" type='submit' >Crear</button>
+                            : <button className="form-button" type='submit' >Crear</button>
                     }
-                    
+
 
                 </form>
             </div>
